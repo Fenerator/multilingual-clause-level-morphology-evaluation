@@ -1,0 +1,2 @@
+command: python $program/1_inflection.py $input $output
+description: Example competition evaluation program.

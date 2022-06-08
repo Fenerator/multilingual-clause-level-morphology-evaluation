@@ -1,5 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+
 from Levenshtein import distance as lev
+import sys
+import os
+import os.path
 
 
 def read_file(file):
@@ -46,21 +50,47 @@ def calculate_levensthein(gold, prediction):
         return dist
     except Exception as e:
         print(f'{e}, gold: {gold}, prediction: {prediction}')
-        return None
+        return 300  # TODO
 
 
 def main():
-    gold = read_file('deu_gold.txt')
-    predictions = read_file('deu_submitted.txt')
+    input_dir = sys.argv[1]
+    output_dir = sys.argv[2]
 
-    assert len(gold) == len(
-        predictions), f'Len of predictions ({len(predictions)}) is not same as gold ({len(gold)}) '
+    submit_dir = os.path.join(input_dir, 'res')  # submission
+    truth_dir = os.path.join(input_dir, 'ref')  # gold
 
-    accuracy, _, edit_distances, mean_edit_distance = calculate_matching(
-        gold, predictions)
+    if not os.path.isdir(submit_dir):
+        print("%s doesn't exist" % submit_dir)
 
-    print(f'Matching predictions: {accuracy}')
-    print(f'Mean edit distance: {mean_edit_distance}')
+    if os.path.isdir(submit_dir) and os.path.isdir(truth_dir):
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        output_filename = os.path.join(output_dir, 'scores.txt')
+        output_file = open(output_filename, 'wb')
+
+        gold_list = os.listdir(truth_dir)
+        for gold in gold_list:
+            gold_file = os.path.join(truth_dir, gold)
+            corresponding_submission_file = os.path.join(submit_dir, gold)
+            if os.path.exists(corresponding_submission_file):
+
+                gold = read_file('deu_gold.txt')
+                predictions = read_file('deu_submitted.txt')
+
+                assert len(gold) == len(
+                    predictions), f'Len of predictions ({len(predictions)}) is not same as gold ({len(gold)}) '
+
+                accuracy, _, edit_distances, mean_edit_distance = calculate_matching(
+                    gold, predictions)
+
+                print(f'Matching predictions: {accuracy}')
+                print(f'Mean edit distance: {mean_edit_distance}')
+
+                output_file.write("Matching predictions: %f" % accuracy)
+
+        output_file.close()
 
 
 if __name__ == "__main__":
@@ -81,4 +111,7 @@ Calculate exact match accuracy ratings (proportion of correctly predicted lemma 
 using ==
 Calcultate Edit Distance (Levenstein distance, averaged over all predictions)
 using levenstein
+
+both can be used for all subtasks
+average over languages as well, or is test set mixed?
 '''
