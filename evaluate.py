@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from Levenshtein import distance as lev
+# from Levenshtein import distance as lev # TODO
 import sys
 import os
 import os.path
@@ -54,8 +54,10 @@ def calculate_levensthein(gold, prediction):
 
 
 def main():
-    input_dir = sys.argv[1]
-    output_dir = sys.argv[2]
+    # input_dir = sys.argv[1]
+    # output_dir = sys.argv[2]
+    input_dir = '/home/dug/Py/mrl_2022_shared_task_evaluation'
+    output_dir = '/home/dug/Py/mrl_2022_shared_task_evaluation'
 
     submit_dir = os.path.join(input_dir, 'res')  # submission
     truth_dir = os.path.join(input_dir, 'ref')  # gold
@@ -70,14 +72,16 @@ def main():
         output_filename = os.path.join(output_dir, 'scores.txt')
         output_file = open(output_filename, 'wb')
 
-        gold_list = os.listdir(truth_dir)
-        for gold in gold_list:
-            gold_file = os.path.join(truth_dir, gold)
-            corresponding_submission_file = os.path.join(submit_dir, gold)
+        gold_files = os.listdir(truth_dir)
+        for file in gold_files:
+            gold_file = os.path.join(truth_dir, file)
+            corresponding_submission_file = os.path.join(submit_dir, file)
             if os.path.exists(corresponding_submission_file):
+                print(
+                    f'Evaluating submission: {corresponding_submission_file} (comparing to gold: {gold_file})')
 
-                gold = read_file('deu_gold.txt')
-                predictions = read_file('deu_submitted.txt')
+                gold = read_file(gold_file)
+                predictions = read_file(corresponding_submission_file)
 
                 assert len(gold) == len(
                     predictions), f'Len of predictions ({len(predictions)}) is not same as gold ({len(gold)}) '
@@ -88,7 +92,10 @@ def main():
                 print(f'Matching predictions: {accuracy}')
                 print(f'Mean edit distance: {mean_edit_distance}')
 
-                output_file.write("Matching predictions: %f" % accuracy)
+                output_file.write(b'Matching predictions %f\n' % accuracy)
+
+                output_file.write(b'Mean edit distance %f' %
+                                  mean_edit_distance)
 
         output_file.close()
 
