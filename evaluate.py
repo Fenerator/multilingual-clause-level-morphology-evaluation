@@ -10,12 +10,15 @@ def read_file(file):
     with open(file, 'r') as infile:  # , encoding='utf-8'
         # or without \n lines = [line.rstrip('\n') for line in infile]
         lines = infile.readlines()
-        print(len(lines))
 
-        # keep only the second part of the line after '\t'
-        content = [line.rstrip().split('\t')[1] for line in lines]
+        # keep only the last part of the line after '\t'
+        content = [line.rstrip().split('\t')[-1] for line in lines]
 
     return content
+
+
+def get_list_average(list):
+    return float(sum(list))/float(len(list))
 
 
 def calculate_matching(gold, predictions):
@@ -29,19 +32,19 @@ def calculate_matching(gold, predictions):
     """
     matching = []  # denotes whether predictions at the position are matching
     lev_distances = []  # stores edit distances per sentence
-    z = 0
+
     for i, j in zip(gold, predictions):
         if i == j:
-            z += 1
             matching.append(1)
         else:
             matching.append(0)
 
         lev_distances.append(calculate_levensthein(i, j))
 
-    mean_distance = sum(lev_distances)/len(lev_distances)
+    accuracy = float(sum(matching))/float(len(matching))
+    mean_distance = get_list_average(lev_distances)
 
-    return z/len(gold), matching, lev_distances, mean_distance
+    return accuracy, matching, lev_distances, mean_distance
 
 
 def calculate_levensthein(gold, prediction):
@@ -49,15 +52,15 @@ def calculate_levensthein(gold, prediction):
         dist = lev(gold, prediction)
         return dist
     except Exception as e:
-        print e, "gold:", gold, "prediction:", prediction
+        # print e, "gold:", gold, "prediction:", prediction
         return 300  # TODO
 
 
 def main():
-    # input_dir = sys.argv[1]
-    # output_dir = sys.argv[2]
-    input_dir = '/home/dug/Py/mrl_2022_shared_task_evaluation'
-    output_dir = '/home/dug/Py/mrl_2022_shared_task_evaluation'
+    input_dir = sys.argv[1]
+    output_dir = sys.argv[2]
+    # input_dir = '/home/dug/Py/mrl_2022_shared_task_evaluation'
+    # output_dir = '/home/dug/Py/mrl_2022_shared_task_evaluation'
 
     submit_dir = os.path.join(input_dir, 'res')  # submission
     truth_dir = os.path.join(input_dir, 'ref')  # gold
@@ -73,15 +76,21 @@ def main():
         output_file = open(output_filename, 'wb')
 
         gold_files = os.listdir(truth_dir)
+
+        submission_accuracies = []
+        submission_distances = []
+
         for file in gold_files:
             gold_file = os.path.join(truth_dir, file)
             corresponding_submission_file = os.path.join(submit_dir, file)
             if os.path.exists(corresponding_submission_file):
-                print 'Evaluating submission:', corresponding_submission_file,
-                'comparing to gold:', gold_file
+                print '-------- Evaluating', corresponding_submission_file, '--------'
 
                 gold = read_file(gold_file)
                 predictions = read_file(corresponding_submission_file)
+
+                print gold[0]
+                print predictions[0]
 
                 assert len(gold) == len(
                     predictions), 'Len of predictions is not the same as  len of reference'
@@ -89,17 +98,20 @@ def main():
                 accuracy, _, edit_distances, mean_edit_distance = calculate_matching(
                     gold, predictions)
 
-                print '==========', corresponding_submission_file, '=========='
-                print 'Matching predictions:', accuracy
-                print 'Mean edit distance:', mean_edit_distance
+                submission_accuracies.append(accuracy)
+                submission_distances.append(mean_edit_distance)
 
-                output_file.write(
-                    b'========== %s ==========\n' % corresponding_submission_file)
-                output_file.write(b'Matching predictions %f\n' % accuracy)
+                print 'Matching Predictions:', accuracy
+                print 'Edit Distance:', mean_edit_distance
 
-                output_file.write(b'Mean edit distance %f' %
-                                  mean_edit_distance)
+        submission_accuracy = get_list_average(submission_accuracies)
+        submission_distance = get_list_average(submission_distances)
 
+        print '======== Average over all files ========'
+        print 'Average Accuracy:', submission_accuracy, submission_accuracies
+        print 'Average Edit Distance:', submission_distance, submission_distances
+
+        output_file.write("Difference: %f" % submission_accuracy)
         output_file.close()
 
 
@@ -108,6 +120,7 @@ if __name__ == "__main__":
 
 
 '''
+NOTES:
 lines cannot be empty
 Input:
 I will give him to her
