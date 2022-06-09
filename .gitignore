@@ -124,3 +124,5 @@ dmypy.json
 .pyre/
 
 scores.txt
+
+get-pip.py

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-# from Levenshtein import distance as lev # TODO
+# from Levenshtein import distance as lev  # TODO
 import sys
 import os
 import os.path
 
 
 def read_file(file):
-    with open(file, 'r', encoding='utf-8') as infile:
+    with open(file, 'r') as infile:  # , encoding='utf-8'
         # or without \n lines = [line.rstrip('\n') for line in infile]
         lines = infile.readlines()
         print(len(lines))
@@ -49,7 +49,7 @@ def calculate_levensthein(gold, prediction):
         dist = lev(gold, prediction)
         return dist
     except Exception as e:
-        print(f'{e}, gold: {gold}, prediction: {prediction}')
+        print e, "gold:", gold, "prediction:", prediction
         return 300  # TODO
 
 
@@ -63,7 +63,7 @@ def main():
     truth_dir = os.path.join(input_dir, 'ref')  # gold
 
     if not os.path.isdir(submit_dir):
-        print("%s doesn't exist" % submit_dir)
+        print "%s doesn't exist" % submit_dir
 
     if os.path.isdir(submit_dir) and os.path.isdir(truth_dir):
         if not os.path.exists(output_dir):
@@ -77,21 +77,24 @@ def main():
             gold_file = os.path.join(truth_dir, file)
             corresponding_submission_file = os.path.join(submit_dir, file)
             if os.path.exists(corresponding_submission_file):
-                print(
-                    f'Evaluating submission: {corresponding_submission_file} (comparing to gold: {gold_file})')
+                print 'Evaluating submission:', corresponding_submission_file,
+                'comparing to gold:', gold_file
 
                 gold = read_file(gold_file)
                 predictions = read_file(corresponding_submission_file)
 
                 assert len(gold) == len(
-                    predictions), f'Len of predictions ({len(predictions)}) is not same as gold ({len(gold)}) '
+                    predictions), 'Len of predictions is not the same as  len of reference'
 
                 accuracy, _, edit_distances, mean_edit_distance = calculate_matching(
                     gold, predictions)
 
-                print(f'Matching predictions: {accuracy}')
-                print(f'Mean edit distance: {mean_edit_distance}')
+                print '==========', corresponding_submission_file, '=========='
+                print 'Matching predictions:', accuracy
+                print 'Mean edit distance:', mean_edit_distance
 
+                output_file.write(
+                    b'========== %s ==========\n' % corresponding_submission_file)
                 output_file.write(b'Matching predictions %f\n' % accuracy)
 
                 output_file.write(b'Mean edit distance %f' %
