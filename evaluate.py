@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-# from Levenshtein import distance as lev  # TODO
 import sys
 import os
 import os.path
@@ -47,10 +45,44 @@ def calculate_matching(gold, predictions):
     return accuracy, matching, lev_distances, mean_distance
 
 
+def _calculate_levenshtein(s, t, costs=(1, 1, 1)):
+    """
+        Source: https://www.python-course.eu/levenshtein_distance.php 
+    """
+    rows = len(s) + 1
+    cols = len(t) + 1
+    deletes, inserts, substitutes = costs
+
+    dist = [[0 for x in range(cols)] for x in range(rows)]
+
+    # source prefixes can be transformed into empty strings
+    # by deletions:
+    for row in range(1, rows):
+        dist[row][0] = row * deletes
+
+    # target prefixes can be created from an empty source string
+    # by inserting the characters
+    for col in range(1, cols):
+        dist[0][col] = col * inserts
+
+    for col in range(1, cols):
+        for row in range(1, rows):
+            if s[row - 1] == t[col - 1]:
+                cost = 0
+            else:
+                cost = substitutes
+            dist[row][col] = min(dist[row - 1][col] + deletes,
+                                 dist[row][col - 1] + inserts,
+                                 dist[row - 1][col - 1] + cost)  # substitution
+
+    return dist[row][col]
+
+
 def calculate_levensthein(gold, prediction):
     try:
-        dist = lev(gold, prediction)
-        return dist
+        #dist = lev(gold, prediction)
+        dist_iterative = _calculate_levenshtein(gold, prediction)
+        return dist_iterative
     except Exception as e:
         # print e, "gold:", gold, "prediction:", prediction
         return 300  # TODO
@@ -59,8 +91,6 @@ def calculate_levensthein(gold, prediction):
 def main():
     input_dir = sys.argv[1]
     output_dir = sys.argv[2]
-    # input_dir = '/home/dug/Py/mrl_2022_shared_task_evaluation'
-    # output_dir = '/home/dug/Py/mrl_2022_shared_task_evaluation'
 
     submit_dir = os.path.join(input_dir, 'res')  # submission
     truth_dir = os.path.join(input_dir, 'ref')  # gold
@@ -89,9 +119,6 @@ def main():
                 gold = read_file(gold_file)
                 predictions = read_file(corresponding_submission_file)
 
-                print gold[0]
-                print predictions[0]
-
                 assert len(gold) == len(
                     predictions), 'Len of predictions is not the same as  len of reference'
 
@@ -117,24 +144,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-'''
-NOTES:
-lines cannot be empty
-Input:
-I will give him to her
-Ich werde ihn ihr geben
-
-Gold
-I will give him to her
-Ich werde ihn ihr geben
-
-Calculate exact match accuracy ratings (proportion of correctly predicted lemma and features)
-using ==
-Calcultate Edit Distance (Levenstein distance, averaged over all predictions)
-using levenstein
-
-both can be used for all subtasks
-average over languages as well, or is test set mixed?
-'''
