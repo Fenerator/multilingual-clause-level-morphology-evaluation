@@ -2,11 +2,11 @@
 
 ## CodaLab Competitions
 
-- Task 1: Inflection: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5300?secret_key=b3f74db4-c45b-4885-a7cd-fe951aa1deec)
+- Task 1: Inflection: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5316?secret_key=7adb1b3e-294a-4055-bbb9-f1c54c777b2b)
 (leaderboard score is edit distance)
-- Task 2: Reinflection: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5301?secret_key=b2501f67-66e1-4149-8f16-55695646b378)
+- Task 2: Reinflection: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5317?secret_key=38dcc82a-12c2-4faa-8204-4577884283ed)
 (leaderboard score is edit distance)
-- Task 3: Analysis: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5302?secret_key=be490d46-f7b1-4b8b-be25-996e4feb9749)
+- Task 3: Analysis: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5318?secret_key=c1e9f2c0-339c-4876-92d2-11b67c6170d5)
 (leaderboard score is exact match accuracy)
 
 ## To Run the Script Locally
