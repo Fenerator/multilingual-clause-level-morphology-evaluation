@@ -2,7 +2,7 @@
 
 ## CodaLab Competitions
 
-- Task 1: Inflection: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5316?secret_key=7adb1b3e-294a-4055-bbb9-f1c54c777b2b)
+- Task 1: Inflection: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5358?secret_key=c59d2248-110d-4485-b33b-1f86e9687901)
 (leaderboard score is edit distance)
 - Task 2: Reinflection: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5317?secret_key=38dcc82a-12c2-4faa-8204-4577884283ed)
 (leaderboard score is edit distance)
