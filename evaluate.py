@@ -16,6 +16,8 @@ def read_file(file):
 
 
 def get_list_average(list):
+    print float(sum(list))
+    print float(len(list))
     return float(sum(list))/float(len(list))
 
 
@@ -130,6 +132,10 @@ def main():
 
                 print 'Matching Predictions:', accuracy
                 print 'Edit Distance:', mean_edit_distance
+
+            else:
+                print 'no corresponding submission file found for', file
+                exit()
 
         submission_accuracy = get_list_average(submission_accuracies)
         submission_distance = get_list_average(submission_distances)

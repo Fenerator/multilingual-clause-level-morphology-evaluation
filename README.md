@@ -33,6 +33,12 @@ A submission uploaded to CodaLab must be of the following format:
 │   ├── tur.dev
 ```
 
+Make sure the outermost folder does not include anything but the text files themselves. To achive that zip the folder containing the text files (here named submission) as follows:
+
+```bash
+zip -j submission.zip submission/*
+```
+
 ## Evaluation
 
 The script compares each gold file to the corresponding submission and calculates for each prediction:
