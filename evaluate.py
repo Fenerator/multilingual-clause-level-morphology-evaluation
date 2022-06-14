@@ -58,7 +58,10 @@ def calculate_f1(gold, prediction):
 
     precision = overlapping / (num_pred + weight_lemma)
     recall = overlapping / (num_gold + weight_lemma)
-    f1 = (2 * precision * recall) / (precision + recall)
+    try:
+        f1 = (2 * precision * recall) / (precision + recall)
+    except ZeroDivisionError:
+        f1 = 0.0
 
     return f1
 
