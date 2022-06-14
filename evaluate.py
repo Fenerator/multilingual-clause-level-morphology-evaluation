@@ -2,6 +2,7 @@
 import sys
 import os
 import os.path
+import re
 
 
 def read_file(file):
@@ -21,22 +22,52 @@ def get_list_average(list):
     return float(sum(list))/float(len(list))
 
 
-def deconstruct_prediction(pred):
+def deconstruction(pred):
     pred = pred.replace(';', ' ').split()
     lemma = pred.pop(0)
-    print(lemma)
+    features = []
 
-    return pred
+    for el in pred:
+        if '(' in el:
+            main_feature = re.search(r'(.*?)\(', el).group(1)
+            in_bracket = re.search(r'\((.*?)\)', el).group(1).split(',')
+
+            for sub_feature in in_bracket:
+                x = main_feature + '-' + sub_feature
+                features.append(x)
+
+        else:
+            features.append(el)
+
+    return features, lemma
 
 
 def calculate_f1(gold, prediction):
     # deconstruction
+    gold_f, gold_lemma = deconstruction(gold)
+    prediction_f, prediction_lemma = deconstruction(prediction)
 
-    gold = deconstruct_prediction(gold)
-    print gold
-    exit()
-    prediction = prediction
-    return 0
+    print 'Gold', gold_lemma, gold_f
+    print 'Pred', prediction_lemma, prediction_f
+
+    # consider correct lemma in f1 score
+    weight_lemma = 3.0
+    if gold_lemma == prediction_lemma:
+        lemma = weight_lemma
+    else:
+        lemma = 0.0
+
+    overlapping = float(len(list(set(gold_f) & set(prediction_f)))) + lemma
+    num_pred = float(len(prediction_f))
+    num_gold = float(len(gold_f))
+
+    print overlapping, num_pred, num_gold
+    precision = overlapping / (num_pred + weight_lemma)
+    recall = overlapping / (num_gold + weight_lemma)
+    f1 = (2 * precision * recall) / (precision + recall)
+    print precision, recall, f1
+
+    return f1
 
 
 def calculate_matching(gold, predictions):
@@ -172,7 +203,7 @@ def main():
         print 'Average Edit Distance:', submission_distance, submission_distances
         print 'Average F1:', submission_f1, submission_f1s
 
-        output_file.write("Difference: %f" % submission_accuracy)
+        output_file.write("Difference: %f" % submission_f1)
         output_file.close()
 
 
