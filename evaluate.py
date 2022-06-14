@@ -193,9 +193,15 @@ def main():
         print '======== Average over all files ========'
         print 'Average Accuracy (on string level):', submission_accuracy, submission_accuracies
         print 'Average Edit Distance:', submission_distance, submission_distances
-        print 'Average F1:', submission_f1, submission_f1s
 
-        output_file.write("Difference: %f" % submission_f1)
+        if f1_enabled == 'True':
+            print 'Average F1:', submission_f1, submission_f1s
+            output_file.write("Difference: %f" % submission_f1)
+
+        else:
+            output_file.write("Difference: %f" % submission_distance)
+            print 'Average F1: not calculated'
+
         output_file.close()
 
 
