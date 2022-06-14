@@ -183,8 +183,8 @@ def main():
                 print 'F1:', mean_f1
 
             else:
-                print 'no corresponding submission file found for', file
-                exit()
+                msg = 'no corresponding submission file found for ' + file
+                sys.exit(msg)
 
         submission_accuracy = get_list_average(submission_accuracies)
         submission_distance = get_list_average(submission_distances)
