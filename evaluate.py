@@ -21,6 +21,24 @@ def get_list_average(list):
     return float(sum(list))/float(len(list))
 
 
+def deconstruct_prediction(pred):
+    pred = pred.replace(';', ' ').split()
+    lemma = pred.pop(0)
+    print(lemma)
+
+    return pred
+
+
+def calculate_f1(gold, prediction):
+    # deconstruction
+
+    gold = deconstruct_prediction(gold)
+    print gold
+    exit()
+    prediction = prediction
+    return 0
+
+
 def calculate_matching(gold, predictions):
     """
     Args:
@@ -32,6 +50,7 @@ def calculate_matching(gold, predictions):
     """
     matching = []  # denotes whether predictions at the position are matching
     lev_distances = []  # stores edit distances per sentence
+    f1_scores = []
 
     for i, j in zip(gold, predictions):
         if i == j:
@@ -41,10 +60,14 @@ def calculate_matching(gold, predictions):
 
         lev_distances.append(calculate_levensthein(i, j))
 
+        f1_scores.append(calculate_f1(i, j))
+
     accuracy = float(sum(matching))/float(len(matching))
     mean_distance = get_list_average(lev_distances)
 
-    return accuracy, matching, lev_distances, mean_distance
+    mean_f1 = get_list_average(f1_scores)
+
+    return accuracy, matching, lev_distances, mean_distance, mean_f1
 
 
 def _calculate_levenshtein(s, t, costs=(1, 1, 1)):
@@ -111,6 +134,7 @@ def main():
 
         submission_accuracies = []
         submission_distances = []
+        submission_f1s = []
 
         for file in gold_files:
             gold_file = os.path.join(truth_dir, file)
@@ -124,14 +148,16 @@ def main():
                 assert len(gold) == len(
                     predictions), 'Len of predictions is not the same as  len of reference'
 
-                accuracy, _, edit_distances, mean_edit_distance = calculate_matching(
+                accuracy, _, edit_distances, mean_edit_distance, mean_f1 = calculate_matching(
                     gold, predictions)
 
                 submission_accuracies.append(accuracy)
                 submission_distances.append(mean_edit_distance)
+                submission_f1s.append(mean_f1)
 
                 print 'Matching Predictions:', accuracy
                 print 'Edit Distance:', mean_edit_distance
+                print 'F1:', mean_f1
 
             else:
                 print 'no corresponding submission file found for', file
@@ -139,10 +165,12 @@ def main():
 
         submission_accuracy = get_list_average(submission_accuracies)
         submission_distance = get_list_average(submission_distances)
+        submission_f1 = get_list_average(submission_f1s)
 
         print '======== Average over all files ========'
         print 'Average Accuracy:', submission_accuracy, submission_accuracies
         print 'Average Edit Distance:', submission_distance, submission_distances
+        print 'Average F1:', submission_f1, submission_f1s
 
         output_file.write("Difference: %f" % submission_accuracy)
         output_file.close()
