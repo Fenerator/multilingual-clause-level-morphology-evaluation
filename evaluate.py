@@ -17,8 +17,6 @@ def read_file(file):
 
 
 def get_list_average(list):
-    print float(sum(list))
-    print float(len(list))
     return float(sum(list))/float(len(list))
 
 
@@ -47,9 +45,6 @@ def calculate_f1(gold, prediction):
     gold_f, gold_lemma = deconstruction(gold)
     prediction_f, prediction_lemma = deconstruction(prediction)
 
-    print 'Gold', gold_lemma, gold_f
-    print 'Pred', prediction_lemma, prediction_f
-
     # consider correct lemma in f1 score
     weight_lemma = 3.0
     if gold_lemma == prediction_lemma:
@@ -61,24 +56,14 @@ def calculate_f1(gold, prediction):
     num_pred = float(len(prediction_f))
     num_gold = float(len(gold_f))
 
-    print overlapping, num_pred, num_gold
     precision = overlapping / (num_pred + weight_lemma)
     recall = overlapping / (num_gold + weight_lemma)
     f1 = (2 * precision * recall) / (precision + recall)
-    print precision, recall, f1
 
     return f1
 
 
-def calculate_matching(gold, predictions):
-    """
-    Args:
-        gold (list of str)
-        predictions (list of str)
-
-    Returns:
-        (float, list): proportion of matching predictions, position of matching predictions
-    """
+def calculate_metrics(gold, predictions, f1_enabled):
     matching = []  # denotes whether predictions at the position are matching
     lev_distances = []  # stores edit distances per sentence
     f1_scores = []
@@ -91,7 +76,10 @@ def calculate_matching(gold, predictions):
 
         lev_distances.append(calculate_levensthein(i, j))
 
-        f1_scores.append(calculate_f1(i, j))
+        if f1_enabled == 'True':
+            f1_scores.append(calculate_f1(i, j))
+        else:
+            f1_scores.append(0.0)
 
     accuracy = float(sum(matching))/float(len(matching))
     mean_distance = get_list_average(lev_distances)
@@ -140,13 +128,14 @@ def calculate_levensthein(gold, prediction):
         dist_iterative = _calculate_levenshtein(gold, prediction)
         return dist_iterative
     except Exception as e:
-        # print e, "gold:", gold, "prediction:", prediction
-        return 300  # TODO
+        print 'Exception during edit distance calculation of', prediction, e
+        exit()
 
 
 def main():
     input_dir = sys.argv[1]
     output_dir = sys.argv[2]
+    f1_enabled = sys.argv[3]
 
     submit_dir = os.path.join(input_dir, 'res')  # submission
     truth_dir = os.path.join(input_dir, 'ref')  # gold
@@ -179,8 +168,8 @@ def main():
                 assert len(gold) == len(
                     predictions), 'Len of predictions is not the same as  len of reference'
 
-                accuracy, _, edit_distances, mean_edit_distance, mean_f1 = calculate_matching(
-                    gold, predictions)
+                accuracy, _, edit_distances, mean_edit_distance, mean_f1 = calculate_metrics(
+                    gold, predictions, f1_enabled)
 
                 submission_accuracies.append(accuracy)
                 submission_distances.append(mean_edit_distance)
@@ -199,7 +188,7 @@ def main():
         submission_f1 = get_list_average(submission_f1s)
 
         print '======== Average over all files ========'
-        print 'Average Accuracy:', submission_accuracy, submission_accuracies
+        print 'Average Accuracy (on string level):', submission_accuracy, submission_accuracies
         print 'Average Edit Distance:', submission_distance, submission_distances
         print 'Average F1:', submission_f1, submission_f1s
 

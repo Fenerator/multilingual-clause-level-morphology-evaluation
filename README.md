@@ -6,16 +6,22 @@
 (leaderboard score is edit distance)
 - Task 2: Reinflection: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5317?secret_key=38dcc82a-12c2-4faa-8204-4577884283ed)
 (leaderboard score is edit distance)
-- Task 3: Analysis: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5318?secret_key=c1e9f2c0-339c-4876-92d2-11b67c6170d5)
+- Task 3: Analysis: [Secret URL](https://codalab.lisn.upsaclay.fr/competitions/5385?secret_key=c73dacf0-32f9-43d2-a779-01977671f259)
 (leaderboard score is exact match accuracy)
 
 ## To Run the Script Locally
 
 ```bash
-/bin/python2 evaluate.py <input directory> <output directory>
+/bin/python2 evaluate.py <input directory> <output directory> <enable F1>
 ```
 
-This script assumes that there is a folder `res` and `ref` in the `<input directory>`. Files containing the gold reference are stored in `ref` and the submitted files in `res`.
+e.g.:
+
+```bash
+/bin/python2 evaluate.py ~/Desktop/eval ~/Desktop/eval False
+```
+
+This script assumes that there is a folder `res` and `ref` in the `<input directory>`. Files containing the gold reference are stored in `ref` and the submitted files in `res`. Set flag `enable F1` to `True` if you are evaluating task 3, otherwise use `False`.
 
 ## CodaLab Submission Requirements
 
