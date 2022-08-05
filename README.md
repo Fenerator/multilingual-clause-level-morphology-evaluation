@@ -6,7 +6,7 @@
 (leaderboard score is edit distance)
 - Task 2: Reinflection: [URL](https://codalab.lisn.upsaclay.fr/competitions/5550?secret_key=4512af71-8e9a-4def-b3a6-fb747d626901)
 (leaderboard score is edit distance)
-- Task 3: Analysis: [URL](https://codalab.lisn.upsaclay.fr/competitions/5551?secret_key=cdeef5ac-2234-4a97-9498-e9d4b3a2e6a4)
+- Task 3: Analysis: [URL](https://codalab.lisn.upsaclay.fr/competitions/6806?secret_key=f65c9177-3723-41f2-ab01-b3e3c8e0751f)
 (leaderboard score is F1-score)
 
 ## To Run the Script Locally
