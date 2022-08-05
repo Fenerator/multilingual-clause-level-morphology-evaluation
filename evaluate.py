@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 import os
 import os.path
@@ -13,7 +14,7 @@ def read_file(file):
         # keep only the last part of the line after '\t'
         content = [line.rstrip().split('\t')[-1] for line in lines]
 
-    return content
+        return content
 
 
 def get_list_average(list):
@@ -70,23 +71,59 @@ def calculate_metrics(gold, predictions, f1_enabled):
     matching = []  # denotes whether predictions at the position are matching
     lev_distances = []  # stores edit distances per sentence
     f1_scores = []
+    c_amb = 0
+    c_unamb = 0
 
     for i, j in zip(gold, predictions):
-        if i == j:
-            matching.append(1)
-        else:
-            matching.append(0)
+        i = i.split('||')  # get alternative ref
 
-        lev_distances.append(calculate_levensthein(i, j))
+        if len(i) > 1:  # ambigous ref
+            match_temp = []
+            lev_dist_tmp = []
+            f1_score_tmp = []
 
-        if f1_enabled == 'True':
-            f1_scores.append(calculate_f1(i, j))
-        else:
-            f1_scores.append(0.0)
+        for alt_i in i:
+            if len(i) == 1:
+                c_unamb += 1
+
+                if alt_i == j:
+                    matching.append(1)
+                else:
+                    matching.append(0)
+
+                lev_distances.append(calculate_levensthein(alt_i, j))
+
+                if f1_enabled == 'True':
+                    f1_scores.append(calculate_f1(alt_i, j))
+                else:
+                    f1_scores.append(0.0)
+
+            elif len(i) > 1:  # ambigous ref
+
+                if alt_i == j:
+                    match_temp.append(1)
+                else:
+                    match_temp.append(0)
+
+                lev_dist_tmp.append(calculate_levensthein(alt_i, j))
+
+                if f1_enabled == 'True':
+                    f1_score_tmp.append(calculate_f1(alt_i, j))
+                else:
+                    f1_score_tmp.append(0.0)
+
+            else:
+                msg = 'Invalid Ref. Entry'
+                sys.exit(msg)
+
+        # ambiguous: keep only best result
+        if len(i) > 1:  # ambigous ref
+            matching.append(max(match_temp))
+            lev_distances.append(min(lev_dist_tmp))
+            f1_scores.append(max(f1_score_tmp))
 
     accuracy = float(sum(matching))/float(len(matching))
     mean_distance = get_list_average(lev_distances)
-
     mean_f1 = get_list_average(f1_scores)
 
     return accuracy, matching, lev_distances, mean_distance, mean_f1
