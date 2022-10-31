@@ -10,9 +10,8 @@
 (leaderboard score is F1-score)
 
 ## To Run the Script Locally
-
 ```bash
-/bin/python2 evaluate.py <input directory> <output directory> <enable F1>
+/bin/python2 evaluate.py <input directory> <ref directory> <output directory> <enable F1> <enable detailed result file>
 ```
 
 e.g.:
