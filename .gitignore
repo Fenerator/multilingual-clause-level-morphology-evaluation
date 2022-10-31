@@ -136,3 +136,7 @@ res_orig/
 ref_old/
 
 res_old/
+
+data/
+
+.DS_Store
