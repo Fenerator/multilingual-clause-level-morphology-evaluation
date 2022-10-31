@@ -29,8 +29,16 @@ def deconstruction(pred):
     for el in pred:
         if '(' in el:
             main_feature = re.search(r'(.*?)\(', el).group(1)
-            in_bracket = re.search(r'\((.*?)\)', el).group(1).split(',')
-
+            try:
+                in_bracket = re.search(r'\((.*?)\)', el).group(1).split(',')
+            except AttributeError:
+                try:
+                    print str(lemma) + ' lemma \n'
+                    print str(pred) + ' prediction \n'
+                    print str(in_bracket) + ' in bracket \n'
+                    print main_feature + ' main features \n'
+                except Exception as e:
+                    in_bracket = []
             for sub_feature in in_bracket:
                 x = main_feature + '-' + sub_feature
                 features.append(x)
@@ -187,6 +195,9 @@ def main():
 
     output_file_name = os.path.basename(os.path.normpath(input_dir)) + '.txt'
 
+    if detailed_res_file == 'True':
+        output_file_name_detailed = os.path.basename(os.path.normpath(input_dir)) + '_detailed.txt'
+
     if not os.path.isdir(submit_dir):
         print "%s doesn't exist" % submit_dir
 
@@ -199,6 +210,10 @@ def main():
         output_filename = os.path.join(output_dir, output_file_name) # last of input dir
         output_file = open(output_filename, 'wb')
 
+        if detailed_res_file == 'True':
+            output_file_name_detailed = os.path.join(output_dir, output_file_name_detailed)
+            output_file_detailed = open(output_file_name_detailed, 'wb')
+        
         gold_files = os.listdir(truth_dir)
 
         submission_accuracies = []
@@ -230,26 +245,27 @@ def main():
                     print 'F1:', mean_f1
                     
                     output_file.write(str(corresponding_submission_file) + '\t\n\n')
+                    output_file_detailed.write(str(corresponding_submission_file) + '\t\n\n')
 
                     output_file.write(str(accuracy) + '\t\n')
                     output_file.write(str(mean_edit_distance)+ '\t\n')
                     output_file.write(str(mean_f1)+ '\t\n\n\n')
 
                     if detailed_res_file == 'True':
-                        output_file.write('Matching detailed: \t\n')
+                        output_file_detailed.write('Matching detailed: \t\n')
                         for match in matching:
-                            output_file.write(str(match) + '\t\n')
-                        output_file.write('\n')
+                            output_file_detailed.write(str(match) + '\t\n')
+                        output_file_detailed.write('\n')
 
-                        output_file.write('Edit Distances detailed: \t\n')
+                        output_file_detailed.write('Edit Distances detailed: \t\n')
                         for ed in edit_distances:
-                            output_file.write(str(ed) + '\t\n')
-                        output_file.write('\n')
+                            output_file_detailed.write(str(ed) + '\t\n')
+                        output_file_detailed.write('\n')
 
-                        output_file.write('F1 scores detailed: \t\n')
+                        output_file_detailed.write('F1 scores detailed: \t\n')
                         for all_f1 in all_f1_scores:
-                            output_file.write(str(all_f1)+ '\t\n')
-                        output_file.write('\n\n')
+                            output_file_detailed.write(str(all_f1)+ '\t\n')
+                        output_file_detailed.write('\n\n')
 
 
                 else:
@@ -264,6 +280,7 @@ def main():
         print 'Average Accuracy (on string level):', submission_accuracy, submission_accuracies
         print 'Average Edit Distance:', submission_distance, submission_distances
 
+        output_file.write('=============='+ '\t\n')
         output_file.write(str(submission_accuracy)+ '\t\n')
         output_file.write(str(submission_distance)+ '\t\n')
 
@@ -279,6 +296,8 @@ def main():
             print 'Average F1: not calculated'
 
         output_file.close()
+        if detailed_res_file == 'True':
+            output_file_detailed.close()
 
 
 if __name__ == "__main__":
