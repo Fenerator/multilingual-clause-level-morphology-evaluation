@@ -99,6 +99,7 @@ def calculate_metrics(gold, predictions, f1_enabled):
                     f1_scores.append(0.0)
 
             elif len(i) > 1:  # ambigous ref
+                c_amb += 1
 
                 if alt_i == j:
                     match_temp.append(1)
@@ -126,7 +127,8 @@ def calculate_metrics(gold, predictions, f1_enabled):
     mean_distance = get_list_average(lev_distances)
     mean_f1 = get_list_average(f1_scores)
 
-    return accuracy, matching, lev_distances, mean_distance, mean_f1
+
+    return accuracy, matching, lev_distances, mean_distance, mean_f1, f1_scores, c_amb, c_unamb
 
 
 def _calculate_levenshtein(s, t, costs=(1, 1, 1)):
@@ -173,12 +175,17 @@ def calculate_levensthein(gold, prediction):
 
 
 def main():
-    input_dir = sys.argv[1]
-    output_dir = sys.argv[2]
-    f1_enabled = sys.argv[3]
+    input_dir = sys.argv[1] # res
+    ref_dir = sys.argv[2] # ref
+    output_dir = sys.argv[3] # output dir
+    f1_enabled = sys.argv[4]
+    detailed_res_file = sys.argv[5]
 
-    submit_dir = os.path.join(input_dir, 'res')  # submission
-    truth_dir = os.path.join(input_dir, 'ref')  # gold
+    # submit_dir = os.path.join(input_dir, 'res')
+    submit_dir = input_dir # res, submission
+    truth_dir = ref_dir  # ref, gold
+
+    output_file_name = os.path.basename(os.path.normpath(input_dir)) + '.txt'
 
     if not os.path.isdir(submit_dir):
         print "%s doesn't exist" % submit_dir
@@ -187,7 +194,9 @@ def main():
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        output_filename = os.path.join(output_dir, 'scores.txt')
+        print str(output_file_name)
+        
+        output_filename = os.path.join(output_dir, output_file_name) # last of input dir
         output_file = open(output_filename, 'wb')
 
         gold_files = os.listdir(truth_dir)
@@ -197,31 +206,55 @@ def main():
         submission_f1s = []
 
         for file in gold_files:
-            gold_file = os.path.join(truth_dir, file)
-            corresponding_submission_file = os.path.join(submit_dir, file)
-            if os.path.exists(corresponding_submission_file):
-                print '-------- Evaluating', corresponding_submission_file, '--------'
+            if not file.startswith('.'):
+                gold_file = os.path.join(truth_dir, file)
+                corresponding_submission_file = os.path.join(submit_dir, file)
+                if os.path.exists(corresponding_submission_file):
+                    print '-------- Evaluating', corresponding_submission_file, '--------'
 
-                gold = read_file(gold_file)
-                predictions = read_file(corresponding_submission_file)
+                    gold = read_file(gold_file)
+                    predictions = read_file(corresponding_submission_file)
 
-                assert len(gold) == len(
-                    predictions), 'Len of predictions is not the same as  len of reference'
+                    assert len(gold) == len(
+                        predictions), 'Len of predictions is not the same as  len of reference'
+                    
+                    accuracy, matching, edit_distances, mean_edit_distance, mean_f1, all_f1_scores, c_amb, c_unamb = calculate_metrics(
+                        gold, predictions, f1_enabled)
 
-                accuracy, _, edit_distances, mean_edit_distance, mean_f1 = calculate_metrics(
-                    gold, predictions, f1_enabled)
+                    submission_accuracies.append(accuracy)
+                    submission_distances.append(mean_edit_distance)
+                    submission_f1s.append(mean_f1)
 
-                submission_accuracies.append(accuracy)
-                submission_distances.append(mean_edit_distance)
-                submission_f1s.append(mean_f1)
+                    print 'Matching Predictions:', accuracy
+                    print 'Edit Distance:', mean_edit_distance
+                    print 'F1:', mean_f1
+                    
+                    output_file.write(str(corresponding_submission_file) + '\t\n\n')
 
-                print 'Matching Predictions:', accuracy
-                print 'Edit Distance:', mean_edit_distance
-                print 'F1:', mean_f1
+                    output_file.write(str(accuracy) + '\t\n')
+                    output_file.write(str(mean_edit_distance)+ '\t\n')
+                    output_file.write(str(mean_f1)+ '\t\n\n\n')
 
-            else:
-                msg = 'no corresponding submission file found for ' + file
-                sys.exit(msg)
+                    if detailed_res_file == 'True':
+                        output_file.write('Matching detailed: \t\n')
+                        for match in matching:
+                            output_file.write(str(match) + '\t\n')
+                        output_file.write('\n')
+
+                        output_file.write('Edit Distances detailed: \t\n')
+                        for ed in edit_distances:
+                            output_file.write(str(ed) + '\t\n')
+                        output_file.write('\n')
+
+                        output_file.write('F1 scores detailed: \t\n')
+                        for all_f1 in all_f1_scores:
+                            output_file.write(str(all_f1)+ '\t\n')
+                        output_file.write('\n\n')
+
+
+                else:
+                    msg = 'no corresponding submission file found for ' + file
+                    sys.exit(msg)
 
         submission_accuracy = get_list_average(submission_accuracies)
         submission_distance = get_list_average(submission_distances)
@@ -231,12 +264,18 @@ def main():
         print 'Average Accuracy (on string level):', submission_accuracy, submission_accuracies
         print 'Average Edit Distance:', submission_distance, submission_distances
 
+        output_file.write(str(submission_accuracy)+ '\t\n')
+        output_file.write(str(submission_distance)+ '\t\n')
+
+        
+
         if f1_enabled == 'True':
             print 'Average F1:', submission_f1, submission_f1s
-            output_file.write("Difference: %f" % submission_f1)
+            #output_file.write("Difference: %f" % submission_f1)
+            output_file.write(str(submission_f1)+ '\t\n\n\n')
 
         else:
-            output_file.write("Difference: %f" % submission_distance)
+            #output_file.write("Difference: %f" % submission_distance)
             print 'Average F1: not calculated'
 
         output_file.close()
