@@ -1,5 +1,7 @@
 # MRL 2022 Shared Task Evaluation
 
+Evaluation scripts for three tasks in multilingual clause-level morphology.
+
 ## Requirements 
 
 Dependent on the runtimes CodaLab provides, this script is only dependent on Python 2.
