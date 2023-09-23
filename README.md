@@ -1,5 +1,9 @@
 # MRL 2022 Shared Task Evaluation
 
+## Requirements 
+
+Dependent on the runtimes CodaLab provides, this script is only dependent on Python 2.
+
 ## CodaLab Competitions
 
 - Task 1: Inflection: [URL](https://codalab.lisn.upsaclay.fr/competitions/6823?secret_key=168d2627-00fa-4d2b-abca-0982726c280c)
